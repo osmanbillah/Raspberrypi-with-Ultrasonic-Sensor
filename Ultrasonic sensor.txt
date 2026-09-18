@@ -1,0 +1,66 @@
+
+#Developed by Brain IT Institute-www.brainitinstitue.blogspot.com/Engr Osman Billah
+import RPi.GPIO as GPIO
+import time
+
+# GPIO mode
+GPIO.setmode(GPIO.BCM)
+
+# HC-SR04 pins
+T = 23    # Trigger - GPIO23, Physical Pin 16
+E = 24    # Echo    - GPIO24, Physical Pin 18
+
+# GPIO setup
+GPIO.setup(T, GPIO.OUT)
+GPIO.setup(E, GPIO.IN)
+
+# Make sure trigger is LOW
+GPIO.output(T, False)
+
+time.sleep(2)
+
+
+def get_distance():
+
+    # Send 10 microsecond trigger pulse
+    GPIO.output(T, True)
+    time.sleep(0.00001)
+    GPIO.output(T, False)
+
+    start = time.time()
+    end = time.time()
+
+    # Wait for Echo HIGH
+    while GPIO.input(E) == 0:
+        start = time.time()
+
+    # Wait for Echo LOW
+    while GPIO.input(E) == 1:
+        end = time.time()
+
+    # Calculate echo duration
+    duration = end - start
+
+    # Calculate distance in cm
+    distance_cm = duration * 34300 / 2
+
+    return distance_cm
+
+
+try:
+
+    while True:
+
+        dis = get_distance()
+
+        print("Distance: {:.2f} cm".format(dis))
+
+        time.sleep(2)
+
+except KeyboardInterrupt:
+
+    print("\nProgram stopped")
+
+finally:
+
+    GPIO.cleanup()
